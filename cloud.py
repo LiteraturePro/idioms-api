@@ -5,6 +5,11 @@ from leancloud import LeanEngineError
 import json
 import os
 import mysql.connector
+from hashlib import sha1
+import hmac
+import requests
+import json
+import urllib
 
 engine = Engine()
 
@@ -138,7 +143,158 @@ def Version_Get(**params):
     data = {"Apk_Url":Version_list.get("Apk_url"),"New_Version":Version_list.get("New_Version"),"Old_Version":Version_list.get("Old_Version")}
     data_list.append(data)
     return {"data":data_list}
+
+@engine.define
+def Get_all_video_list(**params):
+    lists = [5041,5042,5043,5044,5045,5046]
+    video_list = []
+    video_list_info = {}
+    for list_one in lists:
+        video_list.append(Dogecloud_api(list_one))
+    video_list_info["data"] = video_list
+    data_json = json.dumps(video_list_info,ensure_ascii=False)
+    return video_list_info
+   
+@engine.define
+def Get_video_list(**params):
+    """
+    调用 DogeCloud API
+
+    :param api_path:    调用的 API 接口地址，包含 URL 请求参数 QueryString，例如：/console/vfetch/add.json?url=xxx&a=1&b=2
+    :param data:        POST 的数据，字典，例如 {'a': 1, 'b': 2}，传递此参数表示不是 GET 请求而是 POST 请求
+    :param json_mode:   数据 data 是否以 JSON 格式请求，默认为 false 则使用表单形式（a=1&b=2）
+
+    :type api_path: string
+    :type data: dict
+    :type json_mode bool
+
+    :return dict: 返回的数据
+    """
     
+    # 这里替换为你的 DogeCloud 永久 AccessKey 和 SecretKey，可在用户中心 - 密钥管理中查看
+    access_key  = "7e4f5fec921e1096"
+    secret_key  = "7f0909e24cab5b57f1abbb1c19a54bf7"
+    data={}
+    json_mode=False
+    
+    body = ''
+    mime = ''
+    api_path = "/console/video/list.json?order=name&cid=" + str(params["videocid"]) 
+    if json_mode:
+        body = json.dumps(data)
+        mime = 'application/json'
+    else:
+        body = urllib.parse.urlencode(data) # Python 2 可以直接用 urllib.urlencode
+        mime = 'application/x-www-form-urlencoded'
+    
+    
+    #现在我们要请求这个 API 地址
+    # https://api.dogecloud.com/console/video/list.json?order=name&cid=videocid
+    #那么此例需要签名的原始字符串是
+    sign_str = api_path + "\n" + body
+    
+    #对字符串进行签名
+    signed_data = hmac.new(secret_key.encode('utf-8'), sign_str.encode('utf-8'), sha1)
+    
+    #获取签名字符串
+    sign = signed_data.digest().hex()
+    
+    #生成最终的 Authorization 请求头值
+    authorization = 'TOKEN ' + access_key + ':' + sign
+    
+    response = requests.post('https://api.dogecloud.com' + api_path, data=body, headers = {
+        'Authorization': authorization,
+        'Content-Type': mime
+    })
+    
+    videos_info = {}
+    
+    video_list = []
+    
+    for i in response.json()["data"]["videos"]:
+        video_list.append(i["vcode"])
+    
+    
+    
+    # print(response.json()["data"]["videos"][0]["thumb"])
+    videos_info["data"] = video_list
+    return videos_info
+
+    
+def Dogecloud_api(videocid):
+    """
+    调用 DogeCloud API
+
+    :param api_path:    调用的 API 接口地址，包含 URL 请求参数 QueryString，例如：/console/vfetch/add.json?url=xxx&a=1&b=2
+    :param data:        POST 的数据，字典，例如 {'a': 1, 'b': 2}，传递此参数表示不是 GET 请求而是 POST 请求
+    :param json_mode:   数据 data 是否以 JSON 格式请求，默认为 false 则使用表单形式（a=1&b=2）
+
+    :type api_path: string
+    :type data: dict
+    :type json_mode bool
+
+    :return dict: 返回的数据
+    """
+    
+    # 这里替换为你的 DogeCloud 永久 AccessKey 和 SecretKey，可在用户中心 - 密钥管理中查看
+    access_key  = "7e4f5fec921e1096"
+    secret_key  = "7f0909e24cab5b57f1abbb1c19a54bf7"
+    data={}
+    json_mode=False
+    
+    body = ''
+    mime = ''
+    api_path = "/console/video/list.json?order=name&cid=" + str(videocid) 
+    if json_mode:
+        body = json.dumps(data)
+        mime = 'application/json'
+    else:
+        body = urllib.parse.urlencode(data) # Python 2 可以直接用 urllib.urlencode
+        mime = 'application/x-www-form-urlencoded'
+    
+    
+    #现在我们要请求这个 API 地址
+    # https://api.dogecloud.com/console/video/list.json?order=name&cid=videocid
+    #那么此例需要签名的原始字符串是
+    sign_str = api_path + "\n" + body
+    
+    #对字符串进行签名
+    signed_data = hmac.new(secret_key.encode('utf-8'), sign_str.encode('utf-8'), sha1)
+    
+    #获取签名字符串
+    sign = signed_data.digest().hex()
+    
+    #生成最终的 Authorization 请求头值
+    authorization = 'TOKEN ' + access_key + ':' + sign
+    
+    response = requests.post('https://api.dogecloud.com' + api_path, data=body, headers = {
+        'Authorization': authorization,
+        'Content-Type': mime
+    })
+    
+    video_list = []
+    
+    videos_info = {}
+    # print(response.json()["data"]["count"])
+    videos_info["count"] = response.json()["data"]["count"]
+    
+    # print(response.json()["data"]["filters"][0]["text"][3:-3])
+    videos_info["name"] = response.json()["data"]["filters"][0]["text"][3:-3]
+    
+    # print(response.json()["data"]["videos"])
+    for i in response.json()["data"]["videos"]:
+        video_list.append(i["vid"])
+    
+    # print(video_list)
+    videos_info["video_list"] = video_list
+    
+    # print(response.json()["data"]["videos"][0]["thumb"])
+    videos_info["thumb"] = response.json()["data"]["videos"][0]["thumb"]
+    
+    videos_info["videocid"] =  videocid
+    
+    return videos_info
+
 @engine.define
 def Comment_Get(**params):
     if 'NewsID' in params:
