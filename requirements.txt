@@ -1,5 +1,6 @@
-gevent-websocket>=0.9.5,<1.0.0
-leancloud>=2.9.4,<3.0.0
-Flask>=1.0.0
-Flask-Sockets>=0.1,<1.0
+gevent-websocket
+leancloud
+Flask
+Flask-Sockets
 mysql-connector-python
+markupsafe==2.0.1
