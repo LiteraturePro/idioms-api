@@ -406,7 +406,7 @@ def Commentreply_save(**params):
         return 'CommentreplyData参数调用错误!'
         
 @engine.define
-def db(**params):
+def DB_Get_riddle(**params):
     result = ''
     host = 'cdb-9f2p00jq.cd.tencentcdb.com'
     port = '10104'
@@ -417,11 +417,100 @@ def db(**params):
         cnx = mysql.connector.connect(
         user=user, password=password, database='idioms', host=host, port=port)
         cursor = cnx.cursor()
-        cursor.execute('SELECT * from word_url limit 1')
+        cursor.execute('SELECT * from riddle ORDER BY RAND() limit 1')
         for row in cursor:
-            lists.append(row)
+            lists = row 
             
         return {"data":lists}
+    except mysql.connector.Error as err:
+        if err.errno != 0:
+            print(err)
+        else:
+            cursor = cnx.cursor()
+            cursor.execute('SELECT 1 + 1 AS solution')
+            for row in cursor:
+                result = "The solution is {}".format(row[0])
+    
+        cursor.close()
+        cnx.close()
+        return "err"
+
+@engine.define
+def DB_Get_word_url(**params):
+    result = ''
+    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+    port = '10104'
+    user = 'literature'
+    password = 'yxl981204@'
+    try:
+        lists =[]
+        cnx = mysql.connector.connect(
+        user=user, password=password, database='idioms', host=host, port=port)
+        cursor = cnx.cursor()
+        cursor.execute('SELECT * from word_url ORDER BY RAND() limit 1')
+        for row in cursor:
+            lists = row 
+            
+        return {"data":lists}
+    except mysql.connector.Error as err:
+        if err.errno != 0:
+            print(err)
+        else:
+            cursor = cnx.cursor()
+            cursor.execute('SELECT 1 + 1 AS solution')
+            for row in cursor:
+                result = "The solution is {}".format(row[0])
+    
+        cursor.close()
+        cnx.close()
+        return "err"
+# @engine.define
+# def DB_Get_riddle(**params):
+#     result = ''
+#     host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+#     port = '10104'
+#     user = 'literature'
+#     password = 'yxl981204@'
+#     try:
+#         lists =[]
+#         cnx = mysql.connector.connect(
+#         user=user, password=password, database='idioms', host=host, port=port)
+#         cursor = cnx.cursor()
+#         cursor.execute('SELECT * from riddle ORDER BY RAND() limit 1')
+#         for row in cursor:
+#             lists = row 
+            
+#         return {"data":lists}
+#     except mysql.connector.Error as err:
+#         if err.errno != 0:
+#             print(err)
+#         else:
+#             cursor = cnx.cursor()
+#             cursor.execute('SELECT 1 + 1 AS solution')
+#             for row in cursor:
+#                 result = "The solution is {}".format(row[0])
+    
+#         cursor.close()
+#         cnx.close()
+#         return "err"
+
+@engine.define
+def DB_Get_couplet(**params):
+    result = ''
+    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+    port = '10104'
+    user = 'literature'
+    password = 'yxl981204@'
+    try:
+        lists =[]
+        cnx = mysql.connector.connect(
+        user=user, password=password, database='idioms', host=host, port=port)
+        cursor = cnx.cursor()
+        cursor.execute('SELECT * from couplet ORDER BY RAND() limit 1')
+        for row in cursor:
+            lists = row 
+        # str = lists[0]
+        return {"data":str(lists[0]).split(' --- ')}
     except mysql.connector.Error as err:
         if err.errno != 0:
             print(err)
