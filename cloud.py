@@ -10,6 +10,7 @@ import hmac
 import requests
 import json
 import urllib
+import urllib.request
 
 engine = Engine()
 
@@ -524,3 +525,115 @@ def DB_Get_fun(**params):
         cursor.close()
         cnx.close()
         return "err"
+        
+@engine.define
+def Get_idioms_info(**params):
+    # 查询是否存在这个成语
+    if Get_idioms_info_api(params["word"]) == True or Get_idioms_info_db(params["word"]):
+        return {"result": True}
+    else:
+        return {"result": False}
+        
+@engine.define
+def Get_one_word(**params):
+    result = ''
+    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+    port = '10104'
+    word = ''
+    info = {}
+    user = 'literature'
+    password = 'yxl981204@'
+    try:
+        cnx = mysql.connector.connect(
+        user=user, password=password, database='idioms', host=host, port=port)
+        cursor = cnx.cursor()
+        cursor.execute('SELECT * from idiom ORDER BY RAND() limit 1')
+        for row in cursor:
+            word = row[1]
+        info["word"] = word
+        info["words"] = Get_idioms_search_api(word[-1])
+        return info
+    except mysql.connector.Error as err:
+        if err.errno != 0:
+            print(err)
+        else:
+            cursor = cnx.cursor()
+            cursor.execute('SELECT 1 + 1 AS solution')
+            for row in cursor:
+                result = "The solution is {}".format(row[0])
+    
+        cursor.close()
+        cnx.close()
+        return "err"
+    
+    
+def Get_idioms_info_api(word):
+    data = {}
+    data["appkey"] = "76b55ad828c4abe1"
+    data["chengyu"] = word
+     
+    url_values = urllib.parse.urlencode(data)
+    url = "https://api.jisuapi.com/chengyu/detail" + "?" + url_values
+    request = urllib.request.Request(url)
+    result = urllib.request.urlopen(request)
+    jsonarr = json.loads(result.read())
+     
+    if jsonarr["status"] == 0:
+        return True
+    else:
+        return False
+
+def Get_idioms_info_db(word):
+    result = ''
+    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+    port = '10104'
+    user = 'literature'
+    password = 'yxl981204@'
+    try:
+        lists =[]
+        cnx = mysql.connector.connect(
+        user=user, password=password, database='idioms', host=host, port=port)
+        cursor = cnx.cursor()
+        cursor.execute("select * from idiom where word = '" + word + "'")
+        for row in cursor:
+            lists.append(row[0])
+        if len(lists) == 0:
+            return False
+        else:
+            return True
+    except mysql.connector.Error as err:
+        if err.errno != 0:
+            print(err)
+        else:
+            cursor = cnx.cursor()
+            cursor.execute('SELECT 1 + 1 AS solution')
+            for row in cursor:
+                result = "The solution is {}".format(row[0])
+    
+        cursor.close()
+        cnx.close()
+        return "err"
+        
+def Get_idioms_search_api(word):
+    data = {}
+    data["appkey"] = "76b55ad828c4abe1"
+    data["keyword"] = word
+     
+    url_values = urllib.parse.urlencode(data)
+    url = "https://api.jisuapi.com/chengyu/search" + "?" + url_values
+    request = urllib.request.Request(url)
+    result = urllib.request.urlopen(request)
+    jsonarr = json.loads(result.read())
+     
+    if jsonarr["status"] == 0:
+        result = jsonarr["result"]
+        word_list = []
+        words = {}
+        for val in result:
+            if val["name"][0] == word:
+                print (val["name"])
+                word_list.append(val["name"])
+        return word_list
+    else:
+        word_list = []
+        return word_list
