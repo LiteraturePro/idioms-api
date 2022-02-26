@@ -9,6 +9,7 @@ from hashlib import sha1
 import hmac
 import requests
 import json
+import re
 import urllib
 import urllib.request
 
@@ -119,19 +120,51 @@ def Card_Get(**params):
         return 'UserID参数调用错误!'
 
 @engine.define
+def Get_News_api(**params):
+    data = {}
+    data["appkey"] = "76b55ad828c4abe1"
+    data["channel"] = "教育" 
+    data["num"] = 1
+    url_values = urllib.parse.urlencode(data)
+    url = "https://api.jisuapi.com/news/get" + "?" + url_values
+    request = urllib.request.Request(url)
+    result = urllib.request.urlopen(request)
+    jsonarr = json.loads(result.read())
+    
+    # 为 leancloud.Object 创建子类
+    News = leancloud.Object.extend('News')
+    # 为该类创建一个新实例
+    news = News()
+    datas = {}
+    if jsonarr["status"] == 0:
+        # 为属性赋值
+        u = re.sub(r"<[^>]*>|\n","",re.sub(r"<[^>]*>|\n\n","",jsonarr["result"]["list"][0]["content"])).replace(' ','')
+        news.set('Title', jsonarr["result"]["list"][0]["title"])
+        news.set('Image_url', jsonarr["result"]["list"][0]["pic"])
+        news.set('Src', jsonarr["result"]["list"][0]["src"])
+        news.set('Text', re.sub(r"<[^>]*>|\t","",u))
+        news.set('Time', jsonarr["result"]["list"][0]["time"])
+    
+        # 将对象保存到云端
+        news.save()
+        datas["result"] = True
+        return datas
+    else:
+        datas["result"] = False
+        return datas
+
+
+@engine.define
 def News_Get(**params):
     # 声明 class
     News = leancloud.Object.extend('News')
     query = News.query
-    Card_list = query.first()
+    query.ascending('createdAt')
+    Card_list = query.find()
     data_list =[]
-    
-    File = leancloud.Object.extend('_File')
-    File_query = File.query
-    File_query.equal_to('name', Card_list.get("Image").name)
-    File_list = File_query.first()
-    
-    data = {"Title":Card_list.get("Title"),"Text":Card_list.get("Text"),"Time":str(Card_list.created_at)[:10],"Image":File_list.get("url"),"NewsID":Card_list.id}
+    data = {}
+    for i in Card_list:
+        data = {"Title":i.get("Title"),"Text":i.get("Text"),"Time":i.get("Time"),"Src":i.get("Src"),"Image":i.get("Image_url"),"NewsID":i.id}
     data_list.append(data)
     return {"data":data_list}
 
@@ -139,7 +172,7 @@ def News_Get(**params):
 def Version_Get(**params):
     Version = leancloud.Object.extend('Version')
     query = Version.query
-    Version_list = query.first()
+    Version_list = query.find()
     data_list = []
     data = {"Apk_Url":Version_list.get("Apk_url"),"New_Version":Version_list.get("New_Version"),"Old_Version":Version_list.get("Old_Version")}
     data_list.append(data)
