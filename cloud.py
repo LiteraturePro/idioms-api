@@ -168,10 +168,47 @@ def News_Get(**params):
         data = {"Title":i.get("Title"),"Text":i.get("Text"),"Time":i.get("Time"),"Src":i.get("Src"),"Image":i.get("Image_url"),"NewsID":i.id}
     data_list.append(data)
     return {"data":data_list}
+
+
+@engine.define
+def Study_Status_Daka_Auto(**params):
+    Study_Status = leancloud.Object.extend('Study_Status')
     
+    study_status = Study_Status()
+    
+    Daka_Data = leancloud.Object.extend('Daka_Data')
+    
+    daka_data = Daka_Data()
+    
+    
+    User = leancloud.Object.extend('_User')
+    query = User.query
+    
+    User_list = query.find()
+    
+    for user in User_list:
+        # 为属性赋值
+        study_status.set('Date', time.strftime("%Y-%m-%d", time.localtime()))
+        study_status.set('UserID', str(user.id))
+        study_status.set('do', False)
+        
+        # 将对象保存到云端
+        study_status.save()
+        
+        # 为属性赋值
+        daka_data.set('UserID', str(user.id))
+        daka_data.set('Time', time.strftime("%Y-%m-%d", time.localtime()))
+        daka_data.set('Use_time', "00:00:00")
+        daka_data.set('Do',False)
+        
+        # 将对象保存到云端
+        daka_data.save()
+    
+    return {"relust":"done"}
+    
+   
 @engine.define
 def Study_Status_Get(**params):
-    # 声明 class
     # 声明 class
     Study_Status = leancloud.Object.extend('Study_Status')
     study_status = Study_Status.query
@@ -186,7 +223,36 @@ def Study_Status_Get(**params):
         Study_Status_Update = Study_Status.create_without_data(status_list.id)
         Study_Status_Update.set('do', True)
         Study_Status_Update.save()
+        
+        Daka_Data = leancloud.Object.extend('Daka_Data')
+        daka_data = Daka_Data.query
+        daka_data.equal_to('UserID', params['UserID'])
+        daka_data.equal_to('Time', time.strftime("%Y-%m-%d", time.localtime()))
+        daka_list = daka_data.first()
+        
+        Daka_Data_Update = Daka_Data.create_without_data(daka_list.id)
+        Daka_Data_Update.set('Do', True)
+        Daka_Data_Update.set('Use_time',params['Use_time'] )
+        Daka_Data_Update.save()
+        
         return {"data":"done"}
+
+@engine.define
+def Daka_Data_Get(**params):
+    # 声明 class
+    data_list = []
+    Daka_Data = leancloud.Object.extend('Daka_Data')
+    Daka_data = Daka_Data.query
+    Daka_data.equal_to('UserID', params['UserID'])
+    
+    daka_list = Daka_data.find()
+    
+    for i in daka_list:
+        data = {"Time":i.get("Time"),"Use_time":i.get("Use_time"),"Do":i.get("Do")}
+        data_list.append(data)
+        
+    return {"data":data_list}
+
 
 @engine.define
 def Version_Get(**params):
