@@ -438,7 +438,121 @@ def Commentreply_save(**params):
 
     else:
         return 'CommentreplyData参数调用错误!'
+
+@engine.define
+def Get_word_do(**params):
+    data = {}
+    # 声明 class
+    Study_word_tag = leancloud.Object.extend('Study_word_tag')
+    study_word = Study_word_tag.query
+    study_word.equal_to('UserID', params['UserID'])
+    tag_list = study_word.first()
+    tag2 = tag_list.get("id")
+    data["no"] = 30862 - tag2
+    data["do_bili"] = round(tag2/30862*100, 2)  
+    
+    return data
+
+
+@engine.define
+def DB_Get_word(**params):
+    result = ''
+    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
+    port = '10104'
+    user = 'literature'
+    password = 'yxl981204@'
+    
+    # 声明 class
+    Study_word_tag = leancloud.Object.extend('Study_word_tag')
+    study_word = Study_word_tag.query
+    study_word.equal_to('UserID', params['UserID'])
+    tag_list = study_word.first()
+    tag2 = tag_list.get("id")
+    try:
+        lists =[]
         
+        cnx = mysql.connector.connect(
+        user=user, password=password, database='idioms', host=host, port=port)
+        cursor = cnx.cursor()
+        if params['tag'] == 0:
+            cursor.execute("select * from idiom limit " + str(tag2-20) +","+ params['count'] + "")
+            for rows in cursor:
+                list_data ={}
+                list_data["uuid"] = rows[0]
+                list_data["word"] = rows[1]
+                list_data["pinyin"] = rows[2]
+                list_data["derivation"] = rows[3]
+                list_data["explanation"] = rows[4]
+                list_data["example"] = rows[5]
+                list_data["abbreviation"] = rows[6]
+                list_data["pinyin_r"] = rows[7]
+                list_data["first"] = rows[8]
+                list_data["last"] = rows[9]
+                lists.append(list_data)
+        elif params['tag'] == 1:
+            cursor.execute("select * from idiom limit " + str(tag2) +","+ str(params['count']) + "")
+            for rows in cursor:
+                list_data ={}
+                list_data["uuid"] = rows[0]
+                list_data["word"] = rows[1]
+                list_data["pinyin"] = rows[2]
+                list_data["derivation"] = rows[3]
+                list_data["explanation"] = rows[4]
+                list_data["example"] = rows[5]
+                list_data["abbreviation"] = rows[6]
+                list_data["pinyin_r"] = rows[7]
+                list_data["first"] = rows[8]
+                list_data["last"] = rows[9]
+                lists.append(list_data)
+        elif params['tag'] == 2:
+            if tag2 >= params['count']:
+                cursor.execute("select * from idiom limit " + str(tag2-params['count']) +","+ str(params['count']*2) + "")
+            else:
+                cursor.execute("select * from idiom limit " + str(0) +","+ str(params['count']*2) + "")
+            for rows in cursor:
+                list_data ={}
+                list_data["uuid"] = rows[0]
+                list_data["word"] = rows[1]
+                list_data["pinyin"] = rows[2]
+                list_data["derivation"] = rows[3]
+                list_data["explanation"] = rows[4]
+                list_data["example"] = rows[5]
+                list_data["abbreviation"] = rows[6]
+                list_data["pinyin_r"] = rows[7]
+                list_data["first"] = rows[8]
+                list_data["last"] = rows[9]
+                lists.append(list_data)
+                
+        else:
+            cursor.execute("select * from idiom")
+            for rows in cursor:
+                list_data ={}
+                list_data["uuid"] = rows[0]
+                list_data["word"] = rows[1]
+                list_data["pinyin"] = rows[2]
+                list_data["derivation"] = rows[3]
+                list_data["explanation"] = rows[4]
+                list_data["example"] = rows[5]
+                list_data["abbreviation"] = rows[6]
+                list_data["pinyin_r"] = rows[7]
+                list_data["first"] = rows[8]
+                list_data["last"] = rows[9]
+                lists.append(list_data)
+            
+        return {"data":lists}
+    except mysql.connector.Error as err:
+        if err.errno != 0:
+            print(err)
+        else:
+            cursor = cnx.cursor()
+            cursor.execute('SELECT 1 + 1 AS solution')
+            for row in cursor:
+                result = "The solution is {}".format(row[0])
+    
+        cursor.close()
+        cnx.close()
+        return "err"
+      
 @engine.define
 def DB_Get_riddle(**params):
     result = ''
