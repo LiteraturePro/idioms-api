@@ -52,6 +52,20 @@ def Sign_up(**params):
     user.set('gender', 'secret')
     try:
         msg = user.sign_up()
+        # 为属性赋值
+        
+        User = leancloud.Object.extend('_User')
+        query = User.query
+        query.equal_to("email", params['email'])
+        User_list = query.first()
+        Study_Status = leancloud.Object.extend('Study_word_tag')
+        study_status = Study_Status()
+        study_status.set('id', 0)
+        study_status.set('UserID', User_list.id)
+        # 将对象保存到云端
+        study_status.save()
+        
+        
     except Exception as e:
         msg = e
     return str(msg)
@@ -172,30 +186,22 @@ def News_Get(**params):
 
 @engine.define
 def Study_Status_Daka_Auto(**params):
-    Study_Status = leancloud.Object.extend('Study_Status')
-    
-    study_status = Study_Status()
-    
-    Daka_Data = leancloud.Object.extend('Daka_Data')
-    
-    daka_data = Daka_Data()
-    
-    
     User = leancloud.Object.extend('_User')
     query = User.query
-    
     User_list = query.find()
-    
     for user in User_list:
         # 为属性赋值
+        Study_Status = leancloud.Object.extend('Study_Status')
+        study_status = Study_Status()
         study_status.set('Date', time.strftime("%Y-%m-%d", time.localtime()))
         study_status.set('UserID', str(user.id))
         study_status.set('do', False)
-        
         # 将对象保存到云端
         study_status.save()
         
         # 为属性赋值
+        Daka_Data = leancloud.Object.extend('Daka_Data')
+        daka_data = Daka_Data()
         daka_data.set('UserID', str(user.id))
         daka_data.set('Time', time.strftime("%Y-%m-%d", time.localtime()))
         daka_data.set('Use_time', "00:00:00")
@@ -234,6 +240,19 @@ def Study_Status_Get(**params):
         Daka_Data_Update.set('Do', True)
         Daka_Data_Update.set('Use_time',params['Use_time'] )
         Daka_Data_Update.save()
+        
+        
+        Study_word_tag = leancloud.Object.extend('Study_word_tag')
+        word_tag = Study_word_tag.query
+        word_tag.equal_to('UserID', params['UserID'])
+        word_tag_list = query.first()
+        
+        
+        word_tag_Update = Study_word_tag.create_without_data(word_tag_list.id)
+        word_tag_Update.set('id', word_tag_list.get("id") + params['id'])
+        word_tag_Update.save()
+        
+        
         
         return {"data":"done"}
 
