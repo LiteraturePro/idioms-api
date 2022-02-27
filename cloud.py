@@ -10,6 +10,7 @@ import hmac
 import requests
 import json
 import re
+import time
 import urllib
 import urllib.request
 
@@ -167,6 +168,25 @@ def News_Get(**params):
         data = {"Title":i.get("Title"),"Text":i.get("Text"),"Time":i.get("Time"),"Src":i.get("Src"),"Image":i.get("Image_url"),"NewsID":i.id}
     data_list.append(data)
     return {"data":data_list}
+    
+@engine.define
+def Study_Status_Get(**params):
+    # 声明 class
+    # 声明 class
+    Study_Status = leancloud.Object.extend('Study_Status')
+    study_status = Study_Status.query
+    study_status.equal_to('UserID', params['UserID'])
+    study_status.equal_to('Date', time.strftime("%Y-%m-%d", time.localtime()))
+    status_list = study_status.first()
+    status = status_list.get("do")
+    
+    if params['tag'] == 0:
+        return {"status":status}
+    else:
+        Study_Status_Update = Study_Status.create_without_data(status_list.id)
+        Study_Status_Update.set('do', True)
+        Study_Status_Update.save()
+        return {"data":"done"}
 
 @engine.define
 def Version_Get(**params):
