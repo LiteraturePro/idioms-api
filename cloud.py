@@ -255,10 +255,12 @@ def Version_Get(**params):
     Version = leancloud.Object.extend('Version')
     query = Version.query
     Version_list = query.find()
-    data_list = []
-    data = {"Apk_Url":Version_list.get("Apk_url"),"New_Version":Version_list.get("New_Version"),"Old_Version":Version_list.get("Old_Version")}
-    data_list.append(data)
-    return {"data":data_list}
+    data = {}
+    for Version in Version_list:
+        data["Apk_Url"] = Version.get("Apk_url")
+        data["New_Version"] = Version.get("New_Version")
+        data["Old_Version"] = Version.get("Old_Version")
+    return data
 
 @engine.define
 def Get_all_video_list(**params):
