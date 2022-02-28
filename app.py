@@ -30,10 +30,10 @@ def time():
 @app.route('/db')
 def db():
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(

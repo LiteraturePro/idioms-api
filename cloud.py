@@ -16,29 +16,6 @@ import urllib.request
 
 engine = Engine()
 
-
-@engine.define
-def hello(**params):
-    if 'name' in params:
-        return 'Hello, {}!'.format(params['name'])
-    else:
-        # return 'Hello, LeanCloud!'
-        ss = [{"data":"ss"},{"data":"ee"}]
-        print(type(ss))
-        dir =  {"data":ss}
-        return dir
-
-
-@engine.define
-def Request_sms_code(**params):
-    msg = ""
-    try:
-        leancloud.cloud.request_sms_code('+8619825085100')
-
-    except Exception as e:
-        msg = str(e)
-    return msg
-
 @engine.define
 def Sign_up(**params):
     # # 创建实例
@@ -137,7 +114,7 @@ def Card_Get(**params):
 @engine.define
 def Get_News_api(**params):
     data = {}
-    data["appkey"] = "76b55ad828c4abe1"
+    data["appkey"] = os.environ['Jisu_Api']
     data["channel"] = "教育" 
     data["num"] = 1
     url_values = urllib.parse.urlencode(data)
@@ -311,8 +288,8 @@ def Get_video_list(**params):
     """
     
     # 这里替换为你的 DogeCloud 永久 AccessKey 和 SecretKey，可在用户中心 - 密钥管理中查看
-    access_key  = "7e4f5fec921e1096"
-    secret_key  = "7f0909e24cab5b57f1abbb1c19a54bf7"
+    access_key  = os.environ['Doge_access_key']
+    secret_key  = os.environ['Doge_secret_key']
     data={}
     json_mode=False
     
@@ -376,8 +353,8 @@ def Dogecloud_api(videocid):
     """
     
     # 这里替换为你的 DogeCloud 永久 AccessKey 和 SecretKey，可在用户中心 - 密钥管理中查看
-    access_key  = "7e4f5fec921e1096"
-    secret_key  = "7f0909e24cab5b57f1abbb1c19a54bf7"
+    access_key  = os.environ['Doge_access_key']
+    secret_key  = os.environ['Doge_secret_key']
     data={}
     json_mode=False
     
@@ -562,10 +539,10 @@ def Get_word_do(**params):
 @engine.define
 def DB_Get_word(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     
     # 声明 class
     Study_word_tag = leancloud.Object.extend('Study_word_tag')
@@ -661,10 +638,10 @@ def DB_Get_word(**params):
 @engine.define
 def DB_Get_riddle(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(
@@ -691,10 +668,10 @@ def DB_Get_riddle(**params):
 @engine.define
 def DB_Get_word_url(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(
@@ -721,10 +698,10 @@ def DB_Get_word_url(**params):
 @engine.define
 def DB_Get_couplet(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(
@@ -751,10 +728,10 @@ def DB_Get_couplet(**params):
 @engine.define
 def DB_Get_fun(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(
@@ -789,12 +766,12 @@ def Get_idioms_info(**params):
 @engine.define
 def Get_one_word(**params):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
     word = ''
     info = {}
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         cnx = mysql.connector.connect(
         user=user, password=password, database='idioms', host=host, port=port)
@@ -821,7 +798,7 @@ def Get_one_word(**params):
     
 def Get_idioms_info_api(word):
     data = {}
-    data["appkey"] = "76b55ad828c4abe1"
+    data["appkey"] = os.environ['Jisu_Api']
     data["chengyu"] = word
      
     url_values = urllib.parse.urlencode(data)
@@ -837,10 +814,10 @@ def Get_idioms_info_api(word):
 
 def Get_idioms_info_db(word):
     result = ''
-    host = 'cdb-9f2p00jq.cd.tencentcdb.com'
-    port = '10104'
-    user = 'literature'
-    password = 'yxl981204@'
+    host = os.environ['DB_Host']
+    port = os.environ['DB_Port']
+    user = os.environ['DB_User']
+    password = os.environ['DB_Password']
     try:
         lists =[]
         cnx = mysql.connector.connect(
@@ -868,7 +845,7 @@ def Get_idioms_info_db(word):
         
 def Get_idioms_search_api(word):
     data = {}
-    data["appkey"] = "76b55ad828c4abe1"
+    data["appkey"] = os.environ['Jisu_Api']
     data["keyword"] = word
      
     url_values = urllib.parse.urlencode(data)
