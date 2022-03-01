@@ -258,9 +258,8 @@ def Version_Get(**params):
     data = {}
     for Version in Version_list:
         data["Apk_Url"] = Version.get("Apk_url")
-        data["New_Version"] = Version.get("New_Version")
+        data["Version"] = Version.get("Version")
         data["Text"] = Version.get("Text")
-        data["Old_Version"] = Version.get("Old_Version")
     return data
 
 @engine.define

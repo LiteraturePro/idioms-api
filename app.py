@@ -61,6 +61,32 @@ def db():
 def api():
     return str(datetime.now())
 
+
+
+
+@app.route('/version',methods=['POST','GET'])
+def version():
+    # 声明 class
+    File = leancloud.Object.extend('_File')
+    file = File.query
+    file.descending('createdAt')
+    file_list = file.first()
+    
+    
+    Version = leancloud.Object.extend('Version')
+    version = Version.query
+    version_list = version.first()
+    print(version_list.id)
+    
+    Version_Update = Version.create_without_data(version_list.id)
+    Version_Update.set('Apk_url', file_list.get("url"))
+    Version_Update.set('Version',file_list.get("name")[8:13] )
+    Version_Update.save()
+    
+    return "done"
+
+
+
 @sockets.route('/echo')
 def echo_socket(ws):
     while True:
