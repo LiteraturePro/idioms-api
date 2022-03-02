@@ -61,9 +61,6 @@ def db():
 def api():
     return str(datetime.now())
 
-
-
-
 @app.route('/version',methods=['POST','GET'])
 def version():
     # 声明 class
@@ -85,6 +82,19 @@ def version():
     
     return "done"
 
+@app.route('/getversion',methods=['POST','GET'])
+def getversion():
+    # 声明 class
+    File = leancloud.Object.extend('_File')
+    file = File.query
+    file.descending('createdAt')
+    file.limit(2)
+    file_list = file.find()
+    url =""
+    for liste in file_list:
+        url = liste.get("url")
+    
+    return url
 
 
 @sockets.route('/echo')
