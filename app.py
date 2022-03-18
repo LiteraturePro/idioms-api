@@ -159,6 +159,8 @@ class BadGateway(Exception):
 
     def to_json(self):
         rv = dict(self.payload or ())
+        
+        
         rv['message'] = self.message
         return jsonify(rv)
 
