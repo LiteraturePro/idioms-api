@@ -4,3 +4,4 @@ Flask
 Flask-Sockets
 mysql-connector-python
 markupsafe==2.0.1
+qcloud-python-sts
