@@ -9,6 +9,7 @@ from flask_sockets import Sockets
 from leancloud import LeanCloudError
 from leancloud import cloud
 import os
+from sts.sts import Sts
 import mysql.connector
 app = Flask(__name__)
 sockets = Sockets(app)
