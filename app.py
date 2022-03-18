@@ -80,7 +80,7 @@ def api():
         'region': 'ap-shanghai',
         # 这里改成允许的路径前缀，可以根据自己网站的用户登录态判断允许上传的具体路径
         
-        'allow_prefix': 'exampleobject', 
+        'allow_prefix': 'video', 
         # 密钥的权限列表。简单上传和分片需要以下的权限，其他权限列表请看 https://cloud.tencent.com/document/product/436/31923
         'allow_actions': [
             # 简单上传
